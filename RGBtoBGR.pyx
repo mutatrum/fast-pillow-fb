@@ -4,31 +4,17 @@ cimport cython
 
 @cython.boundscheck(False)  # Deactivate bounds checking
 @cython.wraparound(False)   # Deactivate negative indexing.
-def rgbtobgr(arr: cython.char[:]) -> cython.char[:]:
-    l: cython.int
-    i: cython.int
-    c: cython.int
-    t: cython.char
+@cython.initializedcheck(False)
+def rgbtobgr(const char* arr, fb: cython.char[:], unsigned int l):
 
-    l = len(arr)
+    cdef unsigned int i
 
-    for c in range(l >> 4):
-        i = c << 4
-        
-        t = arr[i]
-        arr[i] = arr[i + 2]
-        arr[i + 2] = t
+    with nogil:
 
-        t = arr[i + 4]
-        arr[i + 4] = arr[i + 6]
-        arr[i + 6] = t
+        for i in range(0, l, 4):
 
-        t = arr[i + 8]
-        arr[i + 8] = arr[i + 10]
-        arr[i + 10] = t
-
-        t = arr[i + 12]
-        arr[i + 12] = arr[i + 14]
-        arr[i + 14] = t
+            fb[i     ] = arr[i +  2]
+            fb[i +  1] = arr[i +  1]
+            fb[i +  2] = arr[i     ]
 
     return arr

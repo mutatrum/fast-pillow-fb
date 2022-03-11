@@ -1,4 +1,5 @@
-from PIL import Image, ImageColor
+from PIL import Image
+import mmap
 import pyximport; pyximport.install()
 import RGBtoBGR
 
@@ -10,6 +11,9 @@ class Framebuffer(object):
         self.stride = _read_config(config_dir + "stride")[0]
         self.bits_per_pixel = _read_config(config_dir + "bits_per_pixel")[0]
         assert self.stride == self.bits_per_pixel // 8 * self.size[0]
+        fp = open(self.path, "wb+")
+        self.length = self.size[0] * self.size[1] * (self.bits_per_pixel >> 3)
+        self.fb = mmap.mmap(fp.fileno(), length=self.length, access=mmap.ACCESS_WRITE)
 
     def __str__(self):
         args = (self.path, self.size, self.stride, self.bits_per_pixel)
@@ -18,12 +22,7 @@ class Framebuffer(object):
     def show(self, image: Image):
         assert image.size == self.size
 
-        raw = bytearray(image.tobytes())
-
-        out = RGBtoBGR.rgbtobgr(raw)
-
-        with open(self.path, "wb") as fp:
-            fp.write(out)
+        RGBtoBGR.rgbtobgr(image.tobytes(), self.fb, self.length)
 
     def on(self):
         pass
