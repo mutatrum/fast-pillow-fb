@@ -16,5 +16,3 @@ def rgbtobgr(const char* arr, fb: cython.char[:], unsigned int l):
             fb[i     ] = arr[i +  2]
             fb[i +  1] = arr[i +  1]
             fb[i +  2] = arr[i     ]
-
-    return arr
